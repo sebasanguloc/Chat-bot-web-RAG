@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: chatbot-rag-software
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false # pégala a mano en el dashboard de Render; nunca la subas al repo
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: FASTEMBED_CACHE_PATH
+        value: /tmp/fastembed_cache
+      - key: PYTHON_VERSION
+        value: 3.13.3

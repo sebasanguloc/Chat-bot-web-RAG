@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asistente RAG · Arquitectura de Software</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-header__title">
+        <span class="app-header__icon">📚</span>
+        <div>
+          <h1>Asistente de Arquitectura &amp; Desarrollo de Software</h1>
+          <p class="app-header__subtitle">RAG sobre tus libros técnicos · Groq + ChromaDB</p>
+        </div>
+      </div>
+      <span id="status-badge" class="status-badge status-badge--loading">Conectando…</span>
+    </header>
+
+    <main class="chat" id="chat">
+      <div class="message message--bot">
+        <div class="message__bubble">
+          👋 ¡Hola! Soy tu asistente experto en arquitectura y desarrollo de software.
+          Responderé basándome únicamente en los libros que hayan sido indexados.
+          Si algo no está en la base de conocimiento, te lo diré con honestidad.
+        </div>
+      </div>
+    </main>
+
+    <form id="chat-form" class="chat-form">
+      <textarea
+        id="chat-input"
+        class="chat-form__input"
+        placeholder="Pregunta algo sobre arquitectura de software, patrones de diseño, backend…"
+        rows="1"
+        maxlength="2000"
+        required
+      ></textarea>
+      <button type="submit" class="chat-form__submit" id="chat-submit" aria-label="Enviar">
+        <span class="chat-form__submit-icon">➤</span>
+      </button>
+    </form>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# Dependencias del SERVICIO WEB (lo que instala Render en producción).
+# Deliberadamente sin torch ni langchain-community: la indexación es offline
+# (ver requirements-ingest.txt) y en producción solo se LEE el índice ya
+# construido. Esto es lo que permite correr en 512 MB de RAM.
+
+flask==3.1.3
+gunicorn==26.2.0
+python-dotenv==1.2.3
+langchain-core==1.6.6
+langchain-chroma==1.1.0
+langchain-groq==1.1.3
+fastembed==0.8.1

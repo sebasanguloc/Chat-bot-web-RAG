@@ -1,0 +1,27 @@
+# Secretos y configuración local
+.env
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Cache de modelos ONNX descargados por fastembed
+.fastembed_cache/
+
+# Libros fuente: NO se suben (peso + posibles derechos de autor).
+# El índice generado (chroma_db/) SÍ se commitea — es lo que necesita Render.
+pdfs/*
+!pdfs/.gitkeep
+
+# Documentación en Markdown (notas propias, no se suben al repo)
+*.md
+
+# Sistema
+.DS_Store
+Thumbs.db
