@@ -1,4 +1,4 @@
-"""Indexación offline de libros PDF a ChromaDB — Pasos 1-4 del notebook.
+"""Indexación offline de libros PDF al índice vectorial — Pasos 1-4 del notebook.
 
 Uso:
     python ingest.py                  # incremental: solo indexa PDFs nuevos o modificados
@@ -22,6 +22,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from rag import config
+from rag.embeddings import get_embeddings
 from rag.vector_store import get_vector_store
 
 MANIFEST_NAME = "manifest.json"
@@ -50,7 +51,7 @@ def _save_manifest(persist_dir: Path, manifest: dict) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Indexa libros PDF en ChromaDB.")
+    parser = argparse.ArgumentParser(description="Indexa libros PDF en el índice vectorial.")
     parser.add_argument(
         "--pdf-dir", default=config.PDF_DIR, help="Carpeta con los PDFs a indexar."
     )
@@ -91,7 +92,7 @@ def main() -> None:
         pendientes.append((pdf_path, file_hash))
 
     if not pendientes:
-        total = get_vector_store()._collection.count()
+        total = get_vector_store().count()
         print(f"\n[OK] No hay libros nuevos que indexar. Total en la colección: {total} fragmentos.")
         return
 
@@ -103,6 +104,7 @@ def main() -> None:
 
     print(f"Indexando {len(pendientes)} libro(s) nuevo(s) o modificado(s)...")
     vector_store = get_vector_store()
+    embeddings = get_embeddings()
 
     for pdf_path, file_hash in pendientes:
         loader = PyPDFLoader(str(pdf_path))
@@ -115,11 +117,13 @@ def main() -> None:
             )
             continue
 
-        for page in pages:
-            page.metadata["libro"] = pdf_path.name
-
         chunks = text_splitter.split_documents(pages)
-        vector_store.add_documents(chunks)
+        textos = [c.page_content for c in chunks]
+        metadatas = [
+            {"libro": pdf_path.name, "page": c.metadata.get("page", "?")} for c in chunks
+        ]
+        vectores = embeddings.embed_documents(textos)
+        vector_store.add(vectores, textos, metadatas)
 
         libros_indexados[pdf_path.name] = {
             "hash": file_hash,
@@ -133,7 +137,7 @@ def main() -> None:
 
     _save_manifest(persist_dir, manifest)
 
-    total = vector_store._collection.count()
+    total = vector_store.count()
     print("\n[OK] Indexación completada.")
     print(f"  Libros en el manifiesto:  {len(libros_indexados)}")
     print(f"  Fragmentos en la colección: {total}")

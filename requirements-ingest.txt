@@ -1,6 +1,6 @@
 # Dependencias EXTRA para indexar libros en local (python ingest.py).
 # No se instalan en Render: la indexación se hace offline en tu PC y el
-# resultado (chroma_db/) se sube al repositorio.
+# resultado (vector_index/) se sube al repositorio.
 
 -r requirements.txt
 pypdf==6.19.0

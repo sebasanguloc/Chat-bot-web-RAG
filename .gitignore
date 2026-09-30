@@ -15,9 +15,12 @@ __pycache__/
 .fastembed_cache/
 
 # Libros fuente: NO se suben (peso + posibles derechos de autor).
-# El índice generado (chroma_db/) SÍ se commitea — es lo que necesita Render.
+# El índice generado (vector_index/) SÍ se commitea — es lo que necesita Render.
 pdfs/*
 !pdfs/.gitkeep
+
+# Estado local de Claude Code (no es parte del proyecto)
+.claude/
 
 # Documentación en Markdown (notas propias, no se suben al repo)
 *.md

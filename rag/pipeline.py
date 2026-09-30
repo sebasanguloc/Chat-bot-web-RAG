@@ -9,6 +9,7 @@ from typing import TypedDict
 from langchain_groq import ChatGroq
 
 from . import config
+from .embeddings import get_embeddings
 from .prompt import prompt_template
 from .vector_store import ensure_ready, get_vector_store
 
@@ -39,36 +40,33 @@ def get_llm() -> ChatGroq:
     )
 
 
-def _construir_contexto(docs) -> str:
+def _construir_contexto(results) -> str:
     return "\n\n---\n\n".join(
-        f"[Fuente: {os.path.basename(d.metadata.get('libro', d.metadata.get('source', '?')))}"
-        f" — Pág. {d.metadata.get('page', '?')}]\n{d.page_content}"
-        for d in docs
+        f"[Fuente: {os.path.basename(r.metadata.get('libro', '?'))}"
+        f" — Pág. {r.metadata.get('page', '?')}]\n{r.text}"
+        for r in results
     )
 
 
 def rag_pipeline(pregunta: str, k: int | None = None) -> RagResultado:
-    """Consulta → recuperación (fastembed + Chroma) → prompt aumentado → Groq."""
+    """Consulta → recuperación (fastembed + búsqueda numpy) → prompt aumentado → Groq."""
     ensure_ready()
 
     k = k or config.RETRIEVER_K
-    retriever = get_vector_store().as_retriever(
-        search_type="similarity",
-        search_kwargs={"k": k},
-    )
-    docs = retriever.invoke(pregunta)
+    query_vector = get_embeddings().embed_query(pregunta)
+    results = get_vector_store().search(query_vector, k=k)
 
-    contexto = _construir_contexto(docs)
+    contexto = _construir_contexto(results)
     prompt = prompt_template.invoke({"context": contexto, "question": pregunta})
     respuesta = get_llm().invoke(prompt).content
 
     fuentes: list[FuenteRecuperada] = [
         {
-            "libro": os.path.basename(d.metadata.get("libro", d.metadata.get("source", "?"))),
-            "pagina": d.metadata.get("page", "?"),
-            "fragmento": d.page_content[:300],
+            "libro": os.path.basename(r.metadata.get("libro", "?")),
+            "pagina": r.metadata.get("page", "?"),
+            "fragmento": r.text[:300],
         }
-        for d in docs
+        for r in results
     ]
 
     return {

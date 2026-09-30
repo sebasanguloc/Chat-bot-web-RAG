@@ -29,9 +29,11 @@ GROQ_MODEL: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 GROQ_TEMPERATURE: float = _get_float("GROQ_TEMPERATURE", 0.0)
 
 # --- Embeddings (fastembed / ONNX, sin torch) ---
-EMBEDDING_MODEL: str = os.getenv(
-    "EMBEDDING_MODEL", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-)
+# BAAI/bge-small-en-v1.5 (inglés, 384d) en vez del modelo multilingüe: el
+# multilingüe carga ~607 MB en RAM solo para inicializar la sesión de ONNX
+# Runtime (no cabe en los 512 MB de Render); este modelo carga ~224 MB. Los
+# libros del corpus son en inglés, así que no se pierde calidad de contenido.
+EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
 FASTEMBED_CACHE_PATH: str = os.getenv("FASTEMBED_CACHE_PATH", "./.fastembed_cache")
 
 # --- Chunking (idéntico al notebook) ---
@@ -41,9 +43,8 @@ CHUNK_OVERLAP: int = _get_int("CHUNK_OVERLAP", 50)
 # --- Recuperación ---
 RETRIEVER_K: int = _get_int("RETRIEVER_K", 10)
 
-# --- Base vectorial (ChromaDB) ---
-PERSIST_DIR: str = os.getenv("PERSIST_DIR", "./chroma_db")
-COLLECTION_NAME: str = os.getenv("COLLECTION_NAME", "libros_software")
+# --- Base vectorial (numpy: vectores + texto en disco, ver rag/vector_store.py) ---
+PERSIST_DIR: str = os.getenv("PERSIST_DIR", "./vector_index")
 
 # --- Fuente de documentos ---
 PDF_DIR: str = os.getenv("PDF_DIR", "./pdfs")

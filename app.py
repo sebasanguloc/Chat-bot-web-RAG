@@ -1,4 +1,4 @@
-"""Chat-bot web con arquitectura RAG (Flask + Groq + ChromaDB + fastembed).
+"""Chat-bot web con arquitectura RAG (Flask + Groq + fastembed + numpy).
 
 Rutas:
     GET  /            -> interfaz de chat
